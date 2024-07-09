@@ -25,6 +25,14 @@ public static class CreateProduct
         }
     }
 
+    public record ProductCreatedEvent(Product product)
+    {
+        internal static ProductCreatedEvent FromEntity(Product product)
+        {
+            return new ProductCreatedEvent(product);
+        }
+    }
+
     public static IServiceCollection AddCreateProducts(this IServiceCollection services)
     {
         services.AddScoped<IValidator<Request>, Validator>();
@@ -50,16 +58,35 @@ public static class CreateProduct
         }
 
         public static async Task<IResult> Handler(Request request,
-            IProductRepository repository,
             IValidator<Request> validator,
+            IRepositoryRead<Product> readRepository,
+            IRepositoryWrite<Product> writeRepository,
+            ICacheService<Product> cacheService,
+            INotificationService<ProductCreatedEvent> notificationService,
             CancellationToken cancellation = default)
         {
+            //Criar Cliente
+            //Incluir na base de leitura
+            //Enviar email de boas vindas
+            //Enviar push Notification de boas vindas
+            //Enviar o dado para a base de cache(Redis)
+            //Incluir dados na base de escrita(SQL Server)
             var validation = await validator.ValidateAsync(request, cancellation);
             if (!validation.IsValid)
                 return Results.BadRequest(validation.Errors);
 
             Product produto = request.ToEntity();
-            var result = await repository.CreateProductAsync(produto);
+            Product result = await readRepository.CreateAsync(produto);
+
+            var events = ProductCreatedEvent.FromEntity(result);
+            await notificationService.SendEmailAsync(events);
+            await notificationService.SendNotificationAsync(events);
+
+            await cacheService.SetCacheAsync(result);
+            await writeRepository.CreateAsync(produto);
+
+            //ISendEndpoint endpoint = await bus.GetSendEndpoint(new Uri("queue:orders_delivered"));
+            //await endpoint.Send(cliente);
             Response response = Response.FromEntity(result);
             return Results.Created($"/{response.Id}", response);
         }

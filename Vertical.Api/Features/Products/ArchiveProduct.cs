@@ -20,7 +20,7 @@ public static class ArchiveProduct
         }
 
         public static async Task<IResult> Handler(int id,
-            IProductRepository repository,
+            IProductRepositoryRead repository,
             CancellationToken cancellation = default)
         {
             var product = await repository.GetProduct(id);
