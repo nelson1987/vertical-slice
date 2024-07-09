@@ -1,4 +1,4 @@
-using Vertical.Api.Features;
+using Vertical.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
