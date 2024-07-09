@@ -1,4 +1,5 @@
-﻿using Vertical.Api.Features.Extensions;
+﻿using MassTransit;
+using Vertical.Api.Features.Extensions;
 using Vertical.Api.Features.Products;
 using Vertical.Api.Repositories;
 
@@ -13,6 +14,14 @@ public static class Dependencies
         services.AddCacheServices();
         services.AddNotificationServices();
         services.AddCreateProducts();
+        services.AddMassTransit(bus =>
+        {
+            bus.UsingRabbitMq((context, config) =>
+            {
+                config.Host("rabbitmq");
+                config.ConfigureEndpoints(context);
+            });
+        });
         return services;
     }
 
@@ -38,7 +47,7 @@ public static class Dependencies
 
     private static IServiceCollection AddNotificationServices(this IServiceCollection services)
     {
-        services.AddScoped<INotificationService<Product>, ProductNotificationService>();
+        services.AddScoped<INotificationService<CreateProduct.ProductCreatedEvent>, ProductNotificationService>();
         return services;
     }
 

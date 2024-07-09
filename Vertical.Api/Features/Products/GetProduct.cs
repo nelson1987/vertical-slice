@@ -28,10 +28,10 @@ public static class GetProduct
         }
 
         public static async Task<IResult> Handler(int id,
-            IProductRepositoryRead repository,
+            IRepositoryRead<Product> repository,
             CancellationToken cancellation = default)
         {
-            var product = await repository.GetProduct(id);
+            var product = await repository.Get(id);
             if (product is null)
                 return Results.NotFound();
             return Results.Ok(Response.FromEntity(product));
