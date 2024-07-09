@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using MassTransit;
 using Vertical.Api.Features.Extensions;
 using Vertical.Api.Repositories;
 
@@ -63,6 +64,7 @@ public static class CreateProduct
             IRepositoryWrite<Product> writeRepository,
             ICacheService<Product> cacheService,
             INotificationService<ProductCreatedEvent> notificationService,
+            IBus bus,
             CancellationToken cancellation = default)
         {
             //Criar Cliente
@@ -85,8 +87,9 @@ public static class CreateProduct
             await cacheService.SetCacheAsync(result);
             await writeRepository.CreateAsync(produto);
 
-            //ISendEndpoint endpoint = await bus.GetSendEndpoint(new Uri("queue:orders_delivered"));
-            //await endpoint.Send(cliente);
+            ISendEndpoint endpoint = await bus.GetSendEndpoint(new Uri("queue:products_created"));
+            await endpoint.Send(events);
+
             Response response = Response.FromEntity(result);
             return Results.Created($"/{response.Id}", response);
         }
