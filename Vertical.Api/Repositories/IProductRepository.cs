@@ -1,4 +1,4 @@
-﻿namespace Vertical.Api.Features.Products;
+﻿namespace Vertical.Api.Repositories;
 
 public interface IProductRepository
 {

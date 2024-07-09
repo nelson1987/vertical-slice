@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Vertical.Api.Features.Extensions;
+using Vertical.Api.Repositories;
 
 namespace Vertical.Api.Features.Products;
 

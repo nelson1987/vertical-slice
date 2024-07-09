@@ -1,5 +1,6 @@
 ﻿using Vertical.Api.Features.Extensions;
 using Vertical.Api.Features.Products;
+using Vertical.Api.Repositories;
 
 namespace Vertical.Api.Features;
 
